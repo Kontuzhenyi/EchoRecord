@@ -3,8 +3,10 @@ package com.example.echorecord;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +14,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,6 +60,30 @@ public class MainActivity extends AppCompatActivity {
         requestRuntimePermission();
     }
 
+    public void createFolder(View v) {
+        // Создаем объект File, представляющий папку, которую мы хотим создать.
+        // Путь к папке - это внешний каталог хранения устройства + "/Records(имя папки)".
+        // Полный путь: storage/files/Records
+        File folder = new File(Environment.getExternalStorageDirectory() + "/Records");
+
+        // Проверяем, существует ли папка.
+        if (!folder.exists()) {
+            // Папка не существует, пытаемся ее создать.
+            boolean success = folder.mkdirs();
+
+            // Проверяем, удалось ли создать папку.
+            if (success) {
+                // Папка успешно создана, показываем сообщение пользователю.
+                Toast.makeText(this, "Folder created", Toast.LENGTH_SHORT).show();
+            } else {
+                // Не удалось создать папку, показываем сообщение об ошибке.
+                Toast.makeText(this, "Failed to create folder", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Папка уже существует, показываем соответствующее сообщение.
+            Toast.makeText(this, "Folder already exists", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void requestRuntimePermission()
     {
