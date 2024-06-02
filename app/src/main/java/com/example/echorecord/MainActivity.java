@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     private TextView t_2;
+    private TextView t_1;
     private static final int PERMISSION_REQ_CODE = 100;
     private static String PERMISSION_RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
 
@@ -30,14 +31,28 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        t_1 = findViewById(R.id.Text1);
+        t_1.setText("Приложение не работает");
+        t_1.setTextSize(30);
         t_2 = findViewById(R.id.Text2);
         t_2.setText("Разрешения не получены");
         t_2.setTextSize(30);
     }
 
+    public void onClickStart(View view) {
+
+        t_1.setText("Приложение работает");
+    }
+
+    public void onClickFinish(View view) {
+
+        t_1.setText("Приложение не работает");
+    }
+
     public void onClickGet(View view) {
         requestRuntimePermission();
     }
+
 
     private void requestRuntimePermission()
     {
