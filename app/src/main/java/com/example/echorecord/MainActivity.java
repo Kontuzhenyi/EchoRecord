@@ -3,7 +3,6 @@ package com.example.echorecord;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +15,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,30 +61,56 @@ public class MainActivity extends AppCompatActivity {
         requestRuntimePermission();
     }
 
-    public void createFolder(View v) {
-        // Создаем объект File, представляющий папку, которую мы хотим создать.
-        // Путь к папке - это внешний каталог хранения устройства + "/Records(имя папки)".
-        // Полный путь: storage/files/Records
-        File folder = new File(Environment.getExternalStorageDirectory() + "/Records");
+            public void createFolder(View v) throws IOException {
+                // Создаем объект File, представляющий папку, которую мы хотим создать.
+                // Путь к папке - это внешний каталог хранения устройства + "/Records" (имя папки).
+                // Полный путь: storage/files/Records
+                File folder = new File(getExternalFilesDir(null) + "/Records");
 
-        // Проверяем, существует ли папка.
-        if (!folder.exists()) {
-            // Папка не существует, пытаемся ее создать.
-            boolean success = folder.mkdirs();
+                // Проверяем, существует ли уже папка.
+                if (!folder.exists()) {
+                    // Пытаемся создать папку.
+                    boolean success = folder.mkdirs();
+                    if (success) {
+                        // Папка успешно создана.
+                        Toast.makeText(this, "Folder created", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Не удалось создать папку.
+                        Toast.makeText(this, "Failed to create folder", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Папка уже существует.
+                    Toast.makeText(this, "Folder already exists", Toast.LENGTH_SHORT).show();
+                }
 
-            // Проверяем, удалось ли создать папку.
-            if (success) {
-                // Папка успешно создана, показываем сообщение пользователю.
-                Toast.makeText(this, "Folder created", Toast.LENGTH_SHORT).show();
-            } else {
-                // Не удалось создать папку, показываем сообщение об ошибке.
-                Toast.makeText(this, "Failed to create folder", Toast.LENGTH_SHORT).show();
+                // Проверяем, существует ли папка.
+                if (folder.exists()) {
+                    // Создаем объект File для нового MP3 файла внутри папки.
+                    File mp3File = new File(folder, "sample.mp3");
+
+                    // Проверяем, существует ли уже файл.
+                    if (!mp3File.exists()) {
+                        // Пытаемся создать новый файл.
+                        boolean success = mp3File.createNewFile();
+                        if (success) {
+                            // Файл успешно создан.
+                            Toast.makeText(this, "File created", Toast.LENGTH_SHORT).show();
+                            // Пишем данные в файл.
+                            try (FileOutputStream fos = new FileOutputStream(mp3File)) {
+                                byte[] mp3Data = new byte[]{(byte) 0xFF, (byte) 0xFB, 0x50, 0x40};
+                                fos.write(mp3Data);
+                                Toast.makeText(this, "MP3 file created and written", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Не удалось создать файл.
+                            Toast.makeText(this, "Failed to create File", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Файл уже существует.
+                        Toast.makeText(this, "File already exists", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
-        } else {
-            // Папка уже существует, показываем соответствующее сообщение.
-            Toast.makeText(this, "Folder already exists", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     private void requestRuntimePermission()
     {
