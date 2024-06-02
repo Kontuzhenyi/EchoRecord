@@ -1,14 +1,24 @@
 package com.example.echorecord;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -23,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     // PERMISSION_WRITE_EXTERNAL_STORAGE строка, представляющая разрешение на запись аудио, взятая из Manifest.permission
 
+    private Button b_1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +51,64 @@ public class MainActivity extends AppCompatActivity {
         t_2 = findViewById(R.id.Text2);
         t_2.setText("Разрешения не получены");
         t_2.setTextSize(30);
+
+        b_1 = findViewById(R.id.btnNtf); // находим кнопку
+
+        // запрашиваем разрешения на показ уведомлений
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // если версия больше 13
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
+        b_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // какой-то прослушиватель
+                // он будет вызывать функцию которая будет отправлять уведомления
+                makeNotification();
+            }
+        });
+    }
+
+    public void makeNotification() {
+        String chanelID = "CHANEL_ID_NOTIFICATION"; // создали идентификатор канала
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        // настраиваем конструктор уведомления
+        builder.setSmallIcon(R.drawable.is_notifications) // настроили значек уведомления
+                .setContentTitle("Notification Tittle")
+                .setContentText("Some text for notification here")
+                .setAutoCancel(true) // включили какаю-то автоматическую отмену
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT); // настроили приоритет
+
+        //Intent intent = new Intent(getApplicationContext(), Notifi)
+
+        // Создаем объект для менеджера уведомлений
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Это необходимо если версия андроид выше Oreo
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) { // Проверяем является ли версия лучше чем Oreo
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID); // передаем идентификатор канала
+            if (notificationChannel == null) { // если канал null, то мы инициализируем его значениями
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID,
+                        "Some description", importance); // передаем идентификатор, описание и важность
+                notificationChannel.setLightColor(Color.GREEN); // устанавливаем цвет
+                notificationChannel.enableVibration(true); // устанавливаем вибрацию
+                notificationManager.createNotificationChannel(notificationChannel); // самое важное
+                // диспетчер уведомлений создаёт канал для уведомлений. Мы бередаем это объект
+            }
+        }
+
+        // вызываем диспетчер уведомлений
+        notificationManager.notify(0, builder.build()); // для того чтобы это работало нужно попросить разрешение на уведомления
     }
 
     public void onClickStart(View view) {
