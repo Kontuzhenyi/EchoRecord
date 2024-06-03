@@ -8,14 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -39,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     // PERMISSION_WRITE_EXTERNAL_STORAGE строка, представляющая разрешение на запись аудио, взятая из Manifest.permission
 
     private Button b_1;
+
+    private static final int REQUEST_PERMISSION_CODE = 1;
+    private MediaRecorder recorder;
+    private String fileName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +84,28 @@ public class MainActivity extends AppCompatActivity {
                 // какой-то прослушиватель
                 // он будет вызывать функцию которая будет отправлять уведомления
                 makeNotification();
+            }
+        });
+
+
+        Button startRecordingButton = findViewById(R.id.startRecordingButton);
+        Button stopRecordingButton = findViewById(R.id.stopRecordingButton);
+
+        startRecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkPermissions()) {
+                    startRecording();
+                } else {
+                    requestPermissions();
+                }
+            }
+        });
+
+        stopRecordingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopRecording();
             }
         });
     }
@@ -201,6 +231,60 @@ public class MainActivity extends AppCompatActivity {
         else
         {
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_WRITE_EXTERNAL_STORAGE}, PERMISSION_REQ_CODE);
+        }
+    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.READ_PHONE_STATE
+        }, REQUEST_PERMISSION_CODE);
+    }
+    private boolean checkPermissions() {
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
+        int result2 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            if (grantResults.length > 0) {
+                boolean storagePermission = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean recordPermission = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                boolean phonePermission = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                if (storagePermission && recordPermission && phonePermission) {
+                    startRecording();
+                } else {
+                    // Разрешения не предоставлены
+                }
+            }
+        }
+    }
+    private void startRecording() {
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/call_recording.3gp";
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setOutputFile(fileName);
+
+        try {
+            recorder.prepare();
+            recorder.start();
+            Log.d("MainActivity", "Recording started");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopRecording() {
+        if (recorder != null) {
+            recorder.stop();
+            recorder.release();
+            recorder = null;
+            Log.d("MainActivity", "Recording stopped and saved to " + fileName);
         }
     }
 
