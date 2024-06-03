@@ -7,6 +7,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class PhoneStateReceiver extends BroadcastReceiver {
+    /*
     @Override
     public void onReceive(Context context, Intent intent) {
         if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(intent.getAction())) {
@@ -17,4 +18,14 @@ public class PhoneStateReceiver extends BroadcastReceiver {
             }
         }
     }
+
+     */
+    private static final String TAG = "OutgoingCallReceiver";
+    @Override
+    public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action != null && action.equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
+                String phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+                Log.i(TAG, "Outgoing call to: " + phoneNumber);
+        }}
 }
