@@ -30,6 +30,8 @@ import androidx.core.view.WindowInsetsCompat;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -126,28 +128,25 @@ public class MainActivity extends AppCompatActivity {
 
         b_1 = findViewById(R.id.btnNtf); // находим кнопку
 */
-        // запрашиваем разрешения на показ уведомлений
+        // запрашиваем разрешения на показ уведомлени
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(MainActivity.this,
-                    android.Manifest.permission.RECORD_AUDIO) !=
-                    PackageManager.PERMISSION_GRANTED) {
+            List<String> permissionsNeeded = new ArrayList<>();
 
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.RECORD_AUDIO);
             }
-            if (ContextCompat.checkSelfPermission(MainActivity.this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                    PackageManager.PERMISSION_GRANTED) {
 
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
-            if (ContextCompat.checkSelfPermission(MainActivity.this,
-                    android.Manifest.permission.READ_PHONE_STATE) !=
-                    PackageManager.PERMISSION_GRANTED) {
 
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_PHONE_STATE);
+            }
+
+            if (!permissionsNeeded.isEmpty()) {
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.READ_PHONE_STATE}, 101);
+                        permissionsNeeded.toArray(new String[0]), 101);
             }
         }
 
