@@ -8,8 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btn_stop_rec;
 
     private boolean flagA;
+
+    private String fileName;
+    private MediaRecorder recorder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     makeNotificationStart();
                     t_msg.setText("Запись идет");
                     flagA = true;
+                    startRecording();
                 }
             }
         });
@@ -99,9 +106,11 @@ public class MainActivity extends AppCompatActivity {
                     makeNotificationStop();
                     t_msg.setText("Запись не идет");
                     flagA = false;
+                    stopRecording();
                 }
             }
         });
+
 
 
 
@@ -125,6 +134,20 @@ public class MainActivity extends AppCompatActivity {
 
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            }
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+            }
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.READ_PHONE_STATE) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_PHONE_STATE}, 101);
             }
         }
 
@@ -377,5 +400,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void startRecording() {
+        fileName = getExternalFilesDir(null) + "/Records/call_recording.3gp";
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setOutputFile(fileName);
+
+        try {
+            recorder.prepare();
+            recorder.start();
+            Log.d("MainActivity", "Recording started");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopRecording() {
+        if (recorder != null) {
+            recorder.stop();
+            recorder.release();
+            recorder = null;
+            Log.d("MainActivity", "Recording stopped and saved to " + fileName);
+        }
+    }
 
 }
