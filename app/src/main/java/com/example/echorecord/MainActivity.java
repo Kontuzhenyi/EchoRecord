@@ -30,8 +30,7 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView t_2;
-    private TextView t_1;
+    private TextView t_msg;
     //private static final int PERMISSION_REQ_CODE = 1;
     // PERMISSION_REQ_CODE задает код запроса для разрешения. Этот код используется для
     // идентификации запроса разрешения и обработки результата
@@ -40,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Button btn_start_rec;
     private Button btn_stop_rec;
+
+    private boolean flagA;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,13 +72,21 @@ public class MainActivity extends AppCompatActivity {
 
         btn_start_rec = findViewById(R.id.start_rec);
         btn_stop_rec = findViewById(R.id.stop_rec);
+        t_msg = findViewById(R.id.show_status);
+        flagA = false; // false запись не идет
+
+
 
         btn_start_rec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // какой-то прослушиватель
                 // он будет вызывать функцию которая будет отправлять уведомления
-                makeNotificationStart();
+                if (!flagA){
+                    makeNotificationStart();
+                    t_msg.setText("Запись идет");
+                    flagA = true;
+                }
             }
         });
 
@@ -86,7 +95,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // какой-то прослушиватель
                 // он будет вызывать функцию которая будет отправлять уведомления
-                makeNotificationStop();
+                if (flagA) {
+                    makeNotificationStop();
+                    t_msg.setText("Запись не идет");
+                    flagA = false;
+                }
             }
         });
 
