@@ -30,15 +30,17 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView t_2;
-    private TextView t_1;
-    private static final int PERMISSION_REQ_CODE = 1;
+    private TextView t_msg;
+    //private static final int PERMISSION_REQ_CODE = 1;
     // PERMISSION_REQ_CODE задает код запроса для разрешения. Этот код используется для
     // идентификации запроса разрешения и обработки результата
-    private static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    //private static final String PERMISSION_WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     // PERMISSION_WRITE_EXTERNAL_STORAGE строка, представляющая разрешение на запись аудио, взятая из Manifest.permission
 
-    private Button b_1;
+    private Button btn_start_rec;
+    private Button btn_stop_rec;
+
+    private boolean flagA;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,60 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Создаем объект File, представляющий папку, которую мы хотим создать.
+        // Путь к папке - это внешний каталог хранения устройства + "/Records" (имя папки).
+        // Полный путь: storage/files/Records
+        File folder = new File(getExternalFilesDir(null) + "/Records");
+
+        // Проверяем, существует ли уже папка.
+        if (!folder.exists()) {
+            // Пытаемся создать папку.
+            boolean success = folder.mkdirs();
+            if (success) {
+                // Папка успешно создана.
+                Toast.makeText(this, "Folder created", Toast.LENGTH_SHORT).show();
+            } else {
+                // Не удалось создать папку.
+                Toast.makeText(this, "Failed to create folder", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        btn_start_rec = findViewById(R.id.start_rec);
+        btn_stop_rec = findViewById(R.id.stop_rec);
+        t_msg = findViewById(R.id.show_status);
+        flagA = false; // false запись не идет
+
+
+
+        btn_start_rec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // какой-то прослушиватель
+                // он будет вызывать функцию которая будет отправлять уведомления
+                if (!flagA){
+                    makeNotificationStart();
+                    t_msg.setText("Запись идет");
+                    flagA = true;
+                }
+            }
+        });
+
+        btn_stop_rec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // какой-то прослушиватель
+                // он будет вызывать функцию которая будет отправлять уведомления
+                if (flagA) {
+                    makeNotificationStop();
+                    t_msg.setText("Запись не идет");
+                    flagA = false;
+                }
+            }
+        });
+
+
+
+/*
         t_1 = findViewById(R.id.Text1);
         t_1.setText("Приложение не работает");
         t_1.setTextSize(30);
@@ -57,7 +113,22 @@ public class MainActivity extends AppCompatActivity {
         t_2.setText("Разрешения не получены");
         t_2.setTextSize(30);
 
+
+
         b_1 = findViewById(R.id.btnNtf); // находим кнопку
+*/
+        // запрашиваем разрешения на показ уведомлений
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.RECORD_AUDIO) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            }
+        }
+
+/*
 
         // запрашиваем разрешения на показ уведомлений
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // если версия больше 13
@@ -79,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     public void makeNotification() {
         String chanelID = "CHANEL_ID_NOTIFICATION"; // создали идентификатор канала
@@ -125,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
 
         t_1.setText("Приложение не работает");
     }
+
+
 
     public void onClickGet1(View view) {
         requestRuntimePermission();
@@ -202,6 +277,105 @@ public class MainActivity extends AppCompatActivity {
         {
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_WRITE_EXTERNAL_STORAGE}, PERMISSION_REQ_CODE);
         }
+
+ */
     }
+    public void makeNotificationStart() {
+        String chanelID = "CHANEL_ID_NOTIFICATION"; // создали идентификатор канала
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        // настраиваем конструктор уведомления
+        builder.setSmallIcon(R.drawable.is_notifications) // настроили значек уведомления
+                .setContentTitle("Запись началась")
+                //.setContentText("Some text for notification here")
+                .setAutoCancel(true) // включили какаю-то автоматическую отмену
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT); // настроили приоритет
+
+        //Intent intent = new Intent(getApplicationContext(), Notifi)
+
+        // Создаем объект для менеджера уведомлений
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Это необходимо если версия андроид выше Oreo
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) { // Проверяем является ли версия лучше чем Oreo
+                NotificationChannel notificationChannel =
+                        notificationManager.getNotificationChannel(chanelID); // передаем идентификатор канала
+                if (notificationChannel == null) { // если канал null, то мы инициализируем его значениями
+                    int importance = NotificationManager.IMPORTANCE_HIGH;
+                    notificationChannel = new NotificationChannel(chanelID,
+                            "Some description", importance); // передаем идентификатор, описание и важность
+                    notificationChannel.setLightColor(Color.GREEN); // устанавливаем цвет
+                    //notificationChannel.enableVibration(true); // устанавливаем вибрацию
+                    notificationManager.createNotificationChannel(notificationChannel); // самое важное
+                    // диспетчер уведомлений создаёт канал для уведомлений. Мы бередаем это объект
+                }
+            }
+
+        // вызываем диспетчер уведомлений
+        notificationManager.notify(0, builder.build()); // для того чтобы это работало нужно попросить разрешение на уведомления
+    }
+
+    public void makeNotificationStop() {
+        String chanelID = "CHANEL_ID_NOTIFICATION"; // создали идентификатор канала
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        // настраиваем конструктор уведомления
+        builder.setSmallIcon(R.drawable.is_notifications) // настроили значек уведомления
+                .setContentTitle("Запись завершена")
+                //.setContentText("Some text for notification here")
+                .setAutoCancel(true) // включили какаю-то автоматическую отмену
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT); // настроили приоритет
+
+        //Intent intent = new Intent(getApplicationContext(), Notifi)
+
+        // Создаем объект для менеджера уведомлений
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Это необходимо если версия андроид выше Oreo
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) { // Проверяем является ли версия лучше чем Oreo
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID); // передаем идентификатор канала
+            if (notificationChannel == null) { // если канал null, то мы инициализируем его значениями
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID,
+                        "Some description", importance); // передаем идентификатор, описание и важность
+                notificationChannel.setLightColor(Color.GREEN); // устанавливаем цвет
+                //notificationChannel.enableVibration(true); // устанавливаем вибрацию
+                notificationManager.createNotificationChannel(notificationChannel); // самое важное
+                // диспетчер уведомлений создаёт канал для уведомлений. Мы бередаем это объект
+            }
+        }
+
+        // вызываем диспетчер уведомлений
+        notificationManager.notify(0, builder.build()); // для того чтобы это работало нужно попросить разрешение на уведомления
+    }
+
+    public void createFolder(View v) throws IOException {
+        // Создаем объект File, представляющий папку, которую мы хотим создать.
+        // Путь к папке - это внешний каталог хранения устройства + "/Records" (имя папки).
+        // Полный путь: storage/files/Records
+        File folder = new File(getExternalFilesDir(null) + "/Records");
+
+        // Проверяем, существует ли уже папка.
+        if (!folder.exists()) {
+            // Пытаемся создать папку.
+            boolean success = folder.mkdirs();
+            if (success) {
+                // Папка успешно создана.
+                Toast.makeText(this, "Folder created", Toast.LENGTH_SHORT).show();
+            } else {
+                // Не удалось создать папку.
+                Toast.makeText(this, "Failed to create folder", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Папка уже существует.
+            Toast.makeText(this, "Folder already exists", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 }
