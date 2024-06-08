@@ -49,13 +49,15 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+/*
         t_1 = findViewById(R.id.Text1);
         t_1.setText("Приложение не работает");
         t_1.setTextSize(30);
         t_2 = findViewById(R.id.Text2);
         t_2.setText("Разрешения не получены");
         t_2.setTextSize(30);
+
+
 
         b_1 = findViewById(R.id.btnNtf); // находим кнопку
 
@@ -70,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
+
         b_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     public void makeNotification() {
         String chanelID = "CHANEL_ID_NOTIFICATION"; // создали идентификатор канала
@@ -125,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
 
         t_1.setText("Приложение не работает");
     }
+
+
 
     public void onClickGet1(View view) {
         requestRuntimePermission();
@@ -202,6 +210,10 @@ public class MainActivity extends AppCompatActivity {
         {
             ActivityCompat.requestPermissions(this, new String[]{PERMISSION_WRITE_EXTERNAL_STORAGE}, PERMISSION_REQ_CODE);
         }
+
+ */
     }
+
+
 
 }
