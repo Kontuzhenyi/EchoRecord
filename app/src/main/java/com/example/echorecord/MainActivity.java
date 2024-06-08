@@ -103,6 +103,19 @@ public class MainActivity extends AppCompatActivity {
 
 
         b_1 = findViewById(R.id.btnNtf); // находим кнопку
+*/
+        // запрашиваем разрешения на показ уведомлений
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.RECORD_AUDIO) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO}, 101);
+            }
+        }
+
+/*
 
         // запрашиваем разрешения на показ уведомлений
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // если версия больше 13
@@ -114,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
-
-
 
         b_1.setOnClickListener(new View.OnClickListener() {
             @Override
