@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String fileName;
     private MediaRecorder recorder;
+    private Integer countRecord = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -400,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startRecording() {
-        fileName = getExternalFilesDir(null) + "/Records/call_recording.3gp";
+        fileName = getExternalFilesDir(null) + "/Records/New_record " + countRecord + ".mp3";
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -422,6 +423,7 @@ public class MainActivity extends AppCompatActivity {
             recorder.release();
             recorder = null;
             Log.d("MainActivity", "Recording stopped and saved to " + fileName);
+            countRecord = countRecord + 1;
         }
     }
 
