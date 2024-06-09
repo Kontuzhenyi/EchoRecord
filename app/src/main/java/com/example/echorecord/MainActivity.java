@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String fileName;
     private MediaRecorder recorder;
+    private CallRecorder callRecorder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         btn_stop_rec = findViewById(R.id.stop_rec);
         t_msg = findViewById(R.id.show_status);
         flagA = false; // false запись не идет
+        callRecorder = new CallRecorder(); // будет записывать звонки
 
 
 
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
                     t_msg.setText("Запись идет");
                     flagA = true;
                     startRecording();
+                    //callRecorder.startRecording();
                 }
             }
         });
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     t_msg.setText("Запись не идет");
                     flagA = false;
                     stopRecording();
+                    //callRecorder.stopRecording();
                 }
             }
         });
@@ -142,6 +146,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.READ_PHONE_STATE);
+            }
+
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.PROCESS_OUTGOING_CALLS) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.PROCESS_OUTGOING_CALLS);
             }
 
             if (!permissionsNeeded.isEmpty()) {
@@ -402,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
     private void startRecording() {
         fileName = getExternalFilesDir(null) + "/Records/call_recording.3gp";
         recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         recorder.setOutputFile(fileName);
