@@ -126,11 +126,30 @@ public class MainActivity extends AppCompatActivity {
             switch (state) {
                 case TelephonyManager.CALL_STATE_IDLE:
                     isCallActive = false;
+                    if (flagA) {
+                        makeNotificationStop();
+                        t_msg.setText("Запись не идет");
+                        flagA = false;
+                        stopRecording();
+                    }
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
+                    isCallActive = true;
+                    makeNotificationStart();
+                    t_msg.setText("Запись идет");
+                    flagA = true; // пошла запись
+                    startRecording();
+                    break;
+                    /*
                 case TelephonyManager.CALL_STATE_RINGING:
                     isCallActive = true;
+                    makeNotificationStart();
+                    t_msg.setText("Запись идет");
+                    flagA = true; // пошла запись
+                    startRecording();
                     break;
+
+                     */
             }
         }
     };
