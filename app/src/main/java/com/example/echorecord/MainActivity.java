@@ -139,10 +139,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     isCallActive = true;
-                    makeNotificationStart();
-                    t_msg.setText("Запись идет");
-                    flagA = true; // пошла запись
-                    startRecording();
+                    if (!flagA) {
+                        makeNotificationStart();
+                        t_msg.setText("Запись идет");
+                        flagA = true; // пошла запись
+                        startRecording();
+                    }
                     break;
                     /*
                 case TelephonyManager.CALL_STATE_RINGING:
