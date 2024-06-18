@@ -26,6 +26,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isCallActive;
     private String fileName;
     private MediaRecorder recorder;
-    private Integer countRecord = 1;
+    //private Integer countRecord = 1;
     private TelephonyManager telephonyManager;
 
     @Override
@@ -209,7 +213,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startRecording() {
-        fileName = getExternalFilesDir(null) + "/Records/New_record " + countRecord + ".mp3";
+        // Текущее время
+        Date currentDate = new Date();
+        // Форматирование времени как "день.месяц.год"
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+        String dateText = dateFormat.format(currentDate);
+        // Форматирование времени как "часы:минуты:секунды"
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String timeText = timeFormat.format(currentDate);
+        fileName = getExternalFilesDir(null) + "/Records/" + dateText + " " + timeText + ".mp3";
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -231,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
             recorder.release();
             recorder = null;
             Log.d("MainActivity", "Recording stopped and saved to " + fileName);
-            countRecord = countRecord + 1;
+            //countRecord = countRecord + 1;
         }
     }
 }
